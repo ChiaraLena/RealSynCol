@@ -1,0 +1,30 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="Eslint" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <list>
+          <option value="tqdm" />
+          <option value="plotly" />
+          <option value="pandas" />
+          <option value="numpy" />
+          <option value="open3d" />
+          <option value="tensorboard" />
+          <option value="kornia" />
+          <option value="Pillow" />
+          <option value="logzero" />
+          <option value="pytest" />
+          <option value="imageio" />
+          <option value="matplotlib" />
+          <option value="codetiming" />
+          <option value="PyGeometry" />
+          <option value="pytorch3d" />
+          <option value="black" />
+          <option value="flake8" />
+          <option value="isort" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
