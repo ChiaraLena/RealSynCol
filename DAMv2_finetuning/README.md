@@ -76,3 +76,20 @@ python train.py \
   --epochs 10 \
   --max_depth_mm 200
 ```
+
+
+
+## Acknowledgments
+
+This work builds upon **Depth Anything V2**, a state-of-the-art foundation model
+for monocular depth estimation. We gratefully acknowledge the authors for making
+their model and code publicly available.
+
+The original implementation is available at:
+https://github.com/DepthAnything/Depth-Anything-V2
+
+Pretrained models and model checkpoints are released also via the Hugging Face Hub:
+https://huggingface.co/depth-anything
+
+All credit for the model architecture, training strategy, and pretrained weights
+belongs to the original authors of Depth Anything V2.
