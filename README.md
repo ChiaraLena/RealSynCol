@@ -14,6 +14,11 @@ This repository provides a PyTorch training script to fine-tune **Depth Anything
   Depth values are interpreted as a normalized range and converted to millimeters as:
   ```text
   depth_mm = depth_exr * max_depth_mm
+  
+- Training data is provided through two CSV files, `train.csv` and `validation.csv`.
+Each row in the CSV files specifies the paths to a single RGB frame and its
+corresponding depth map, allowing the training pipeline to load paired RGB–depth
+samples directly from disk.
 
 ## Implementation Details
 
@@ -51,3 +56,23 @@ Install dependencies:
 
 ```bash
 pip install -r requirements.txt
+```
+
+
+## Training Example
+
+The training script can be launched directly from the command line by specifying
+the training and validation CSV files, along with the desired output directory.
+The parameter max_depth_mm is customized on realSynCol dataset, where the maximum depth is 200 mm. 
+
+```bash
+python train.py \
+  --train_csv train.csv \
+  --val_csv validation.csv \
+  --model_name depth-anything/Depth-Anything-V2-Small-hf \
+  --output_dir ./outputs_damv2_lora \
+  --batch_size 4 \
+  --lr 1e-4 \
+  --epochs 10 \
+  --max_depth_mm 200
+```
