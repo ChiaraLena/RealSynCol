@@ -117,63 +117,33 @@ class DepthMetricLoss(nn.Module):
     """
     Metric depth loss in millimeters.
     - Main term: Huber (Smooth L1) on valid pixels (0 < depth <= max_depth_mm), in mm.
-    - Optional: scale-invariant log term with weight lambda_si.
     """
 
-    def __init__(self, max_depth_mm=200.0, lambda_si=0.0, huber_delta=5.0, eps=1e-6):
-        """
-        huber_delta: transition point between L2 and L1 (in millimeters).
-                     Smaller -> more robust to outliers, larger -> more like plain L2.
-        """
+    def __init__(self, max_depth_mm=200.0, huber_delta=5.0):
         super().__init__()
         self.max_depth_mm = max_depth_mm
-        self.lambda_si = lambda_si
         self.huber_delta = huber_delta
-        self.eps = eps
 
     def forward(self, pred, target):
         # pred, target: (B, H, W) in mm
         valid = (target > 0.0) & (target <= self.max_depth_mm)
 
         if not valid.any():
-            # No valid pixels at all (unlikely but safe-guard)
             return torch.tensor(0.0, device=pred.device)
 
         pred_valid = pred[valid]
         target_valid = target[valid]
 
-        # -------------------------------
-        # 1) Huber / Smooth L1 in mm
-        # -------------------------------
         diff = pred_valid - target_valid
         abs_diff = torch.abs(diff)
 
-        # Huber loss per element (in mm^2 inside)
-        # 0.5 * d^2                         if |d| <= delta
-        # delta * (|d| - 0.5 * delta)       otherwise
         delta = self.huber_delta
         quadratic = torch.clamp(abs_diff, max=delta)
         quadratic_loss = 0.5 * quadratic ** 2
         linear_loss = delta * (abs_diff - quadratic)
 
-        huber = quadratic_loss + linear_loss  # (N,)
-        huber = huber.mean()  # average over valid pixels
-
-        loss = huber
-
-        # -------------------------------
-        # 2) Optional SI-log term (in meters for numerical stability)
-        # -------------------------------
-        if self.lambda_si > 0.0:
-            pred_m = torch.clamp(pred_valid / 1000.0, min=self.eps)
-            target_m = torch.clamp(target_valid / 1000.0, min=self.eps)
-
-            log_diff = torch.log(pred_m) - torch.log(target_m)
-            n = log_diff.numel()
-            si = (log_diff ** 2).sum() / n - (log_diff.sum() ** 2) / (n ** 2)
-            loss = loss + self.lambda_si * si
-
-        return loss
+        huber = quadratic_loss + linear_loss
+        return huber.mean()
 
 
 # ====================================================
@@ -494,7 +464,6 @@ def train(
     # Huber-based metric loss in mm
     criterion = DepthMetricLoss(
         max_depth_mm=max_depth_mm,
-        lambda_si=0.0,
         huber_delta=5.0,  # 5 mm transition between L2 and L1 regime
     )
 
